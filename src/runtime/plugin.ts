@@ -3,7 +3,10 @@ import authMiddleware from './middleware/sidebase-auth'
 import { getNitroRouteRules } from './utils/kit'
 import { FetchConfigurationError } from './utils/fetch'
 import { resolveApiBaseURL } from './utils/url'
-import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useRuntimeConfig } from '#imports'
+import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useRuntimeConfig, useCookie } from '#imports'
+import { ofetch } from 'ofetch'
+import type { FetchContext } from 'ofetch'
+import { useTypedBackendConfig } from './helpers'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
@@ -88,4 +91,19 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       global: true
     })
   }
+
+  // 4. Add interceptor(s) to ofetch
+  const config = useTypedBackendConfig(useRuntimeConfig(), 'cookie')
+  
+  globalThis.$fetch = ofetch.create({
+    onRequest (context: FetchContext): Promise<void> | void {
+      if (config.csrf?.header_name !== undefined) {
+        if (config.csrf?.methods.includes(context.options.method.toLowerCase())) {
+          context.options.headers = Object.assign(context.options.headers ?? {}, {
+            [config.csrf.header_name]: useCookie(config.csrf.cookie_name).value
+          })
+        }
+      }
+    }
+  })
 })

@@ -1,6 +1,6 @@
 // TODO: This should be merged into `./utils`
 import type { DeepRequired } from 'ts-essentials'
-import type { ProviderAuthjs, ProviderLocal, SupportedAuthProviders } from './types'
+import type { ProviderAuthjs, ProviderCookie, ProviderLocal, SupportedAuthProviders } from './types'
 import type { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'
@@ -9,9 +9,11 @@ export const isProduction = process.env.NODE_ENV === 'production'
 // but due to a build error we can't use `DeepRequired` inside runtime config definition.
 type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
 export type ProviderAuthjsResolvedConfig = DeepRequired<ProviderAuthjs>
+export type ProviderCookieResolvedConfig = DeepRequired<ProviderCookie>
 export type ProviderLocalResolvedConfig = DeepRequired<ProviderLocal>
 
 export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'authjs'): ProviderAuthjsResolvedConfig
+export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'cookie'): ProviderCookieResolvedConfig
 export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'local'): ProviderLocalResolvedConfig
 /**
  * Get the backend configuration from the runtime config in a typed manner.
@@ -22,7 +24,7 @@ export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'local
 export function useTypedBackendConfig<T extends SupportedAuthProviders>(
   runtimeConfig: ReturnType<typeof useRuntimeConfig>,
   type: T
-): ProviderAuthjsResolvedConfig | ProviderLocalResolvedConfig {
+): ProviderAuthjsResolvedConfig | ProviderCookieResolvedConfig | ProviderLocalResolvedConfig {
   const provider = runtimeConfig.public.auth.provider
   if (provider.type === type) {
     return provider as DeepRequired<typeof provider>
