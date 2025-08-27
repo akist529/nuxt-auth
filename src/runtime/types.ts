@@ -828,7 +828,7 @@ export interface CommonUseAuthReturn<SignIn, SignOut, SessionData> {
   signIn: SignIn
   signOut: SignOut
   getSession: GetSessionFunc<SessionData>
-  refresh: () => Promise<unknown>
+  refresh?: () => Promise<unknown>
 }
 
 export interface CommonUseAuthStateReturn<SessionData> {

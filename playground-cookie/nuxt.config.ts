@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  ssr: true,
+  // ssr: false,
   compatibilityDate: '2024-04-03',
   modules: ['../src/module.ts'],
   build: {
@@ -13,6 +13,7 @@ export default defineNuxtConfig({
         name: 'ty_retailers_session',
       },
       csrf: {
+        cookie_name: 'XSRF-TOKEN', header_name: 'X-XSRF-TOKEN', methods: ['delete', 'post', 'put'],
         csrf: { cookie_name: 'XSRF-TOKEN', header_name: 'X-XSRF-TOKEN', methods: ['delete', 'post', 'put'] }
       },
       endpoints: {

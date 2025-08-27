@@ -19,7 +19,7 @@ export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'local
  * Get the backend configuration from the runtime config in a typed manner.
  *
  * @param runtimeConfig The runtime config of the application
- * @param type Backend type to be enforced (e.g.: `local` or `authjs`)
+ * @param type Backend type to be enforced (e.g.: `local`, `cookie` or `authjs`)
  */
 export function useTypedBackendConfig<T extends SupportedAuthProviders>(
   runtimeConfig: ReturnType<typeof useRuntimeConfig>,
@@ -29,6 +29,8 @@ export function useTypedBackendConfig<T extends SupportedAuthProviders>(
   if (provider.type === type) {
     return provider as DeepRequired<typeof provider>
   }
+
+  console.log(type);
 
   throw new Error('RuntimeError: Type must match at this point')
 }

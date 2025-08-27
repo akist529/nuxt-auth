@@ -54,27 +54,27 @@ export interface SignOutFunc<T = unknown> {
  */
 interface UseAuthReturn extends CommonUseAuthReturn<SignInFunc, SignOutFunc, SessionData> {
   getCsrfToken: GetCsrfTokenFunc
-  getRequestCookies: RequestCookiesFunc
+  // getRequestCookies: RequestCookiesFunc
   signUp: SignUpFunc
-  token: Readonly<Ref<string | null>>
-  refreshToken: Readonly<Ref<string | null>>
+  // token: Readonly<Ref<string | null>>
+  // refreshToken: Readonly<Ref<string | null>>
 }
 
 export function useAuth(): UseAuthReturn {
   const nuxt = useNuxtApp()
   const runtimeConfig = useRuntimeConfig()
-  const config = useTypedBackendConfig(runtimeConfig, 'local')
+  const config = useTypedBackendConfig(runtimeConfig, 'cookie')
 
   const {
     data,
     status,
     lastRefreshedAt,
     loading,
-    token,
-    refreshToken,
-    rawToken,
-    rawRefreshToken,
-    _internal
+    // token,
+    // refreshToken,
+    // rawToken,
+    // rawRefreshToken,
+    // _internal
   } = useAuthState()
 
     /**
@@ -83,7 +83,7 @@ export function useAuth(): UseAuthReturn {
    * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useAuth` composable calls.
    *
    */
-  async function getRequestCookies<T = { cookie: string } | {}>(nuxt: NuxtApp): Promise<T | undefined> {
+  async function getRequestCookies(nuxt: NuxtApp): Promise<{ cookie: string } | {}> {
     // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
     type CookieHeader = { cookie?: string }
     const { cookie } = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie']) as CookieHeader)
@@ -94,17 +94,6 @@ export function useAuth(): UseAuthReturn {
     
     return {}
   }
-  // async function getRequestCookies (nuxt: NuxtApp): Promise<{ cookie: string } | {}> {
-  //   // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
-  //   type CookieHeader = { cookie?: string }
-  //   const { cookie } = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie']) as CookieHeader)
-
-  //   if (cookie) {
-  //     return { cookie }
-  //   }
-    
-  //   return {}
-  // }
 
     /**
    * Get the current Cross-Site Request Forgery token.
@@ -130,6 +119,7 @@ export function useAuth(): UseAuthReturn {
     const nuxt = useNuxtApp()
 
     const config = useTypedBackendConfig(useRuntimeConfig(), 'cookie')
+    console.log(config.endpoints);
     const { path, method } = config.endpoints.signIn
 
     const csrfToken = useCookie(config.csrf?.cookie_name)
@@ -153,30 +143,30 @@ export function useAuth(): UseAuthReturn {
     }
 
     // Extract the access token
-    const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
-    if (typeof extractedToken !== 'string') {
-      console.error(
-        `${ERROR_PREFIX} string token expected, received instead: ${JSON.stringify(extractedToken)}. `
-        + `Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
-      )
-      return
-    }
-    rawToken.value = extractedToken
+    // const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
+    // if (typeof extractedToken !== 'string') {
+    //   console.error(
+    //     `${ERROR_PREFIX} string token expected, received instead: ${JSON.stringify(extractedToken)}. `
+    //     + `Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
+    //   )
+    //   return
+    // }
+    // rawToken.value = extractedToken
 
     // Extract the refresh token if enabled
-    if (config.refresh.isEnabled) {
-      const refreshTokenPointer = config.refresh.token.signInResponseRefreshTokenPointer
+    // if (config.refresh.isEnabled) {
+    //   const refreshTokenPointer = config.refresh.token.signInResponseRefreshTokenPointer
 
-      const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
-      if (typeof extractedRefreshToken !== 'string') {
-        console.error(
-          `${ERROR_PREFIX} string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}. `
-          + `Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
-        )
-        return
-      }
-      rawRefreshToken.value = extractedRefreshToken
-    }
+    //   const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
+    //   if (typeof extractedRefreshToken !== 'string') {
+    //     console.error(
+    //       `${ERROR_PREFIX} string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}. `
+    //       + `Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
+    //     )
+    //     return
+    //   }
+    //   rawRefreshToken.value = extractedRefreshToken
+    // }
 
     const { redirect = true, external, callGetSession = true } = signInOptions ?? {}
 
@@ -204,19 +194,20 @@ export function useAuth(): UseAuthReturn {
 
     let headers
     let body
-    if (signOutConfig) {
-      headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
-      // If the refresh provider is used, include the refreshToken in the body
-      if (config.refresh.isEnabled && ['post', 'put', 'patch', 'delete'].includes(signOutConfig.method.toLowerCase())) {
-        // This uses refresh token pointer as we are passing `refreshToken`
-        const signoutRequestRefreshTokenPointer = config.refresh.token.refreshRequestTokenPointer
-        body = objectFromJsonPointer(signoutRequestRefreshTokenPointer, refreshToken.value)
-      }
-    }
+
+    // if (signOutConfig) {
+    //   headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
+    //   // If the refresh provider is used, include the refreshToken in the body
+    //   if (config.refresh.isEnabled && ['post', 'put', 'patch', 'delete'].includes(signOutConfig.method.toLowerCase())) {
+    //     // This uses refresh token pointer as we are passing `refreshToken`
+    //     const signoutRequestRefreshTokenPointer = config.refresh.token.refreshRequestTokenPointer
+    //     body = objectFromJsonPointer(signoutRequestRefreshTokenPointer, refreshToken.value)
+    //   }
+    // }
 
     data.value = null
-    rawToken.value = null
-    rawRefreshToken.value = null
+    // rawToken.value = null
+    // rawRefreshToken.value = null
 
     let res: T | undefined
     if (signOutConfig) {
@@ -249,19 +240,19 @@ export function useAuth(): UseAuthReturn {
   async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData | null | void> {
     const { path, method } = config.endpoints.getSession
 
-    let tokenValue = token.value
+    // let tokenValue = token.value
     // For cached responses, return the token directly from the cookie
-    tokenValue ??= formatToken(_internal.rawTokenCookie.value, config)
+    // tokenValue ??= formatToken(_internal.rawTokenCookie.value, config)
 
-    if (!tokenValue && !getSessionOptions?.force) {
-      loading.value = false
-      return
-    }
+    // if (!tokenValue && !getSessionOptions?.force) {
+    //   loading.value = false
+    //   return
+    // }
 
     const headers = new Headers(useRequestHeaders(['cookie']))
-    if (tokenValue) {
-      headers.append(config.token.headerName, tokenValue)
-    }
+    // if (tokenValue) {
+    //   headers.append(config.token.headerName, tokenValue)
+    // }
 
     loading.value = true
     const url = await getRequestURLWN(nuxt)
@@ -269,8 +260,7 @@ export function useAuth(): UseAuthReturn {
 
     try {
       const result = await _fetch<any>(nuxt, path, { method, headers })
-      const { dataResponsePointer: sessionDataResponsePointer } = config.session
-      data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
+      data.value = result
     }
     catch (err) {
       const { required = false } = getSessionOptions ?? {};
@@ -281,7 +271,6 @@ export function useAuth(): UseAuthReturn {
 
       // Clear all data: Request failed so we must not be authenticated
       data.value = null
-      rawToken.value = null
     }
     loading.value = false
     lastRefreshedAt.value = new Date()
@@ -320,69 +309,69 @@ export function useAuth(): UseAuthReturn {
     return signIn<T>(credentials, signUpOptions)
   }
 
-  async function refresh(getSessionOptions?: GetSessionOptions) {
-    // Only refresh the session if the refresh logic is not enabled
-    if (!config.refresh.isEnabled) {
-      return getSession(getSessionOptions)
-    }
+  // async function refresh(getSessionOptions?: GetSessionOptions) {
+  //   // Only refresh the session if the refresh logic is not enabled
+  //   if (!config.refresh.isEnabled) {
+  //     return getSession(getSessionOptions)
+  //   }
 
-    const { path, method } = config.refresh.endpoint
-    const refreshRequestTokenPointer = config.refresh.token.refreshRequestTokenPointer
+  //   const { path, method } = config.refresh.endpoint
+  //   const refreshRequestTokenPointer = config.refresh.token.refreshRequestTokenPointer
 
-    const headers = new Headers({
-      [config.token.headerName]: token.value
-    } as HeadersInit)
+  //   const headers = new Headers({
+  //     [config.token.headerName]: token.value
+  //   } as HeadersInit)
 
-    const response = await _fetch<Record<string, any>>(nuxt, path, {
-      method,
-      headers,
-      body: objectFromJsonPointer(refreshRequestTokenPointer, refreshToken.value)
-    })
+  //   const response = await _fetch<Record<string, any>>(nuxt, path, {
+  //     method,
+  //     headers,
+  //     body: objectFromJsonPointer(refreshRequestTokenPointer, refreshToken.value)
+  //   })
 
-    // Extract the new token from the refresh response
-    const tokenPointer = config.refresh.token.refreshResponseTokenPointer || config.token.signInResponseTokenPointer
-    const extractedToken = jsonPointerGet(response, tokenPointer)
-    if (typeof extractedToken !== 'string') {
-      console.error(
-        `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. `
-        + `Tried to find token at ${tokenPointer} in ${JSON.stringify(response)}`
-      )
-      return
-    }
+  //   // Extract the new token from the refresh response
+  //   const tokenPointer = config.refresh.token.refreshResponseTokenPointer || config.token.signInResponseTokenPointer
+  //   const extractedToken = jsonPointerGet(response, tokenPointer)
+  //   if (typeof extractedToken !== 'string') {
+  //     console.error(
+  //       `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. `
+  //       + `Tried to find token at ${tokenPointer} in ${JSON.stringify(response)}`
+  //     )
+  //     return
+  //   }
 
-    if (!config.refresh.refreshOnlyToken) {
-      const refreshTokenPointer = config.refresh.token.signInResponseRefreshTokenPointer
-      const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
-      if (typeof extractedRefreshToken !== 'string') {
-        console.error(
-          `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}. `
-          + `Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
-        )
-        return
-      }
+  //   if (!config.refresh.refreshOnlyToken) {
+  //     const refreshTokenPointer = config.refresh.token.signInResponseRefreshTokenPointer
+  //     const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
+  //     if (typeof extractedRefreshToken !== 'string') {
+  //       console.error(
+  //         `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}. `
+  //         + `Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
+  //       )
+  //       return
+  //     }
 
-      rawRefreshToken.value = extractedRefreshToken
-    }
+  //     rawRefreshToken.value = extractedRefreshToken
+  //   }
 
-    rawToken.value = extractedToken
-    lastRefreshedAt.value = new Date()
+  //   rawToken.value = extractedToken
+  //   lastRefreshedAt.value = new Date()
 
-    await nextTick()
-    return getSession(getSessionOptions)
-  }
+  //   await nextTick()
+  //   return getSession(getSessionOptions)
+  // }
 
   return {
     status,
     data: readonly(data),
     lastRefreshedAt: readonly(lastRefreshedAt),
-    token: readonly(token),
-    refreshToken: readonly(refreshToken),
+    // token: readonly(token),
+    // refreshToken: readonly(refreshToken),
     getCsrfToken,
-    getRequestCookies,
+    // getRequestCookies,
     getSession,
     signIn,
     signOut,
     signUp,
-    refresh
+    // refresh
   }
 }

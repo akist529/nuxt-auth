@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useAuth } from '#imports'
 
-const { signIn, token, refreshToken, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
+const { signIn, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
 
 const username = ref('smith')
 const password = ref('hunter2')
@@ -13,9 +13,6 @@ const password = ref('hunter2')
     <pre>Status: <span data-testid="status">{{ status }}</span></pre>
     <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
     <pre>Last refreshed at: {{ lastRefreshedAt || 'no refresh happened' }}</pre>
-    <pre>JWT token: {{ token || 'no token present, are you logged in?' }}</pre>
-    <pre>Refresh token: {{ refreshToken || 'N/A' }}</pre>
-
     <form @submit.prevent="signIn({ username, password })">
       <input v-model="username" type="text" placeholder="Username" data-testid="username">
       <input v-model="password" type="password" placeholder="Password" data-testid="password">

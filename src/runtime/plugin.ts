@@ -98,7 +98,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   globalThis.$fetch = ofetch.create({
     onRequest (context: FetchContext): Promise<void> | void {
       if (config.csrf?.header_name !== undefined) {
-        if (config.csrf?.methods.includes(context.options.method.toLowerCase())) {
+        if (context.options.method && config.csrf?.methods.includes(context.options.method.toLowerCase())) {
           context.options.headers = Object.assign(context.options.headers ?? {}, {
             [config.csrf.header_name]: useCookie(config.csrf.cookie_name).value
           })
