@@ -105,7 +105,11 @@ export function useAuth(): UseAuthReturn {
     const headers = await getRequestCookies(nuxt)
     const config = useTypedBackendConfig(useRuntimeConfig(), 'cookie')
     const { path, method } = config.endpoints.csrf
-    return _fetch<{ csrfToken: string }>(nuxt, path, { headers, method }).then(response => response.csrfToken)
+    await _fetch<{ csrfToken: string }>(nuxt, path, { headers, method }).then(response => {
+      console.log(nuxt, path, headers, method);
+      console.log(response);
+      return response;
+    });
   }
 
   const getCsrfTokenWithNuxt = makeCWN(getCsrfToken)
@@ -119,10 +123,10 @@ export function useAuth(): UseAuthReturn {
     const nuxt = useNuxtApp()
 
     const config = useTypedBackendConfig(useRuntimeConfig(), 'cookie')
-    console.log(config.endpoints);
     const { path, method } = config.endpoints.signIn
 
     const csrfToken = useCookie(config.csrf?.cookie_name)
+
     if (!csrfToken.value) {
       await getCsrfTokenWithNuxt(nuxt)
       if (!csrfToken) {

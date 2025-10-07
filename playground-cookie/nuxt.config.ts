@@ -6,7 +6,8 @@ export default defineNuxtConfig({
     transpile: ['jsonwebtoken']
   },
   auth: {
-    baseURL: '/api',
+    originEnvKey: 'NUXT_AUTH_ORIGIN',
+    // baseURL: '/api',
     provider: {
       type: 'cookie',
       cookie: {
@@ -18,7 +19,7 @@ export default defineNuxtConfig({
       },
       endpoints: {
         getSession: { path: '/user' },
-        csrf: { path: '/sanctum/csrf-cookie' },
+        csrf: { path: 'http://localhost:3000/sanctum/csrf-cookie' },
       },
       pages: {
         login: '/'
@@ -40,9 +41,12 @@ export default defineNuxtConfig({
       '/api': {
         target: 'http://localhost/api',
         changeOrigin: true,
-      }
+      },
     }
-  }
+  },
+  // runtimeConfig: {
+  //   authOrgin: process.env.NUXT_AUTH_ORIGIN,
+  // },
   // routeRules: {
   //   '/with-caching': {
   //     swr: 86400000,

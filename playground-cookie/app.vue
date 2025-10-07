@@ -4,8 +4,11 @@ import { useAuth } from '#imports'
 
 const { signIn, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
 
-const username = ref('smith')
-const password = ref('hunter2')
+const username = ref('lliang@tymail.com')
+const userid = ref('csi')
+// const username = ref('smith')
+const password = ref('$Ipad123')
+// const password = ref('hunter2')
 </script>
 
 <template>
@@ -13,8 +16,9 @@ const password = ref('hunter2')
     <pre>Status: <span data-testid="status">{{ status }}</span></pre>
     <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
     <pre>Last refreshed at: {{ lastRefreshedAt || 'no refresh happened' }}</pre>
-    <form @submit.prevent="signIn({ username, password })">
-      <input v-model="username" type="text" placeholder="Username" data-testid="username">
+    <form @submit.prevent="signIn({ username, userid, password })">
+      <input v-model="username" type="email" placeholder="Email" data-testid="email">
+      <input v-model="userid" type="text" placeholder="Username" data-testid="username">
       <input v-model="password" type="password" placeholder="Password" data-testid="password">
       <button type="submit" data-testid="submit">
         sign in
@@ -22,7 +26,7 @@ const password = ref('hunter2')
     </form>
 
     <br>
-    <button @click="signIn({ username, password }, { callbackUrl: '/protected/globally' })">
+    <button @click="signIn({ username, userid, password }, { callbackUrl: '/protected/globally' })">
       sign in (with redirect to protected page)
     </button>
     <br>

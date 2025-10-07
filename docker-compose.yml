@@ -1,0 +1,17 @@
+services:
+  node:
+    image: node:20
+    platform: linux/amd64
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html/playground-cookie
+    entrypoint: npm run dev
+    ports:
+      - "3001:3000"
+    networks:
+      - retailers
+
+networks:
+  retailers:
+    external: true
+    name: retailers_sail

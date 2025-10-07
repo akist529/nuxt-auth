@@ -10,6 +10,9 @@ export default eventHandler((event) => {
 
   const requestAccessToken = extractTokenFromAuthorizationHeader(authorizationHeader)
   let decoded: JwtPayload
+
+  // console.log(requestAccessToken);
+
   try {
     const decodeTokenResult = decodeToken(requestAccessToken)
 

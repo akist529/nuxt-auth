@@ -1,3 +1,6 @@
-import { eventHandler } from 'h3'
+import { deleteCookie, eventHandler } from 'h3'
 
-export default eventHandler(() => ({ status: 'OK ' }))
+export default eventHandler((event) => {
+    deleteCookie(event, 'ApplicationAuth')
+    return { status: 'OK' }
+})

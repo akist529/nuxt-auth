@@ -1,13 +1,12 @@
-import { createError, eventHandler, readBody } from 'h3'
-import { createUserTokens, credentialsSchema, getUser } from '~/server/utils/session'
+import { createError, eventHandler, readBody, setCookie, setResponseStatus } from 'h3'
+import { credentialsSchema, getUser } from '~/server/utils/session'
+import { sign } from 'jsonwebtoken'
 
-/*
- * DISCLAIMER!
- * This is a demo implementation, please create your own handlers
- */
+export const SECRET = 'dummy'
 
 export default eventHandler(async (event) => {
   const result = credentialsSchema.safeParse(await readBody(event))
+
   if (!result.success) {
     throw createError({
       statusCode: 403,
@@ -15,13 +14,17 @@ export default eventHandler(async (event) => {
     })
   }
 
-  // Emulate successful login
-  const user = await getUser(result.data.username)
-
-  // Sign the tokens
-  const tokens = await createUserTokens(user)
-
-  return {
-    token: tokens
+  const expiresIn = 1500
+  const { username } = result.data
+  const user = {
+    username,
+    picture: 'https://github.com/nuxt.png',
+    name: 'User ' + username
   }
+
+  const cookieValue = sign({ ...user, scope: ['test', 'user'] }, SECRET, { expiresIn }) // We just use `sign` here to create a payload. The cookie provider does not actually use JWTs. Any user info must come from GetSession
+  setCookie(event, 'ApplicationAuth', cookieValue, { httpOnly: true, sameSite: 'lax', secure: true })
+  setResponseStatus(event, 200);
+
+  return null
 })

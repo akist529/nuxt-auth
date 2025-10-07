@@ -89,7 +89,26 @@ const defaultsByBackend: {
       }
     }
   },
-
+  cookie: {
+    type: 'cookie',
+    pages: {
+      login: '/login'
+    },
+    endpoints: {
+      signIn: { path: '/login', method: 'post' },
+      signOut: { path: '/logout', method: 'post' },
+      signUp: { path: '/register', method: 'post' },
+      getSession: { path: '/session', method: 'get' },
+      csrf: { path: '/session', method: 'get' }
+    },
+    cookie: {
+      name: ''
+    },
+    session: {
+      dataType: { id: 'string | number' },
+      dataResponsePointer: '/',
+    },
+  },
   authjs: {
     type: 'authjs',
     trustHost: false,
